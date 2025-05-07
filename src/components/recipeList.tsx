@@ -1,7 +1,8 @@
 import Link from "next/link";
 import results from "@/data/recipes.json";
 
-export default async function RecipeList() {
+export default async function RecipeList({ query }: { query: string }) {
+  // TODO: Filter recipes based on the query
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {results.map((recipe) => (
