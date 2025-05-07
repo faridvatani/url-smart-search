@@ -1,5 +1,5 @@
+import RecipeList from "@/components/recipeList";
 import SearchBar from "@/components/searchBar";
-
 
 export default async function Home() {
   return (
@@ -13,6 +13,7 @@ export default async function Home() {
       </p>
 
       <SearchBar />
+      <RecipeList />
     </main>
   );
 }

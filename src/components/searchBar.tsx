@@ -27,7 +27,7 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSearch} className="mb-16 max-w-2xl mx-auto relative">
-      <div className="flex items-center gap-2 rounded-xl overflow-hidden bg-white border-2 border-black/10 focus-within:border-indigo-500/50">
+      <div className="flex items-center gap-2 rounded-xl overflow-hidden bg-white border-2 border-black/40 focus-within:border-indigo-500">
         <input
           type="text"
           name="inputSearchValue"
