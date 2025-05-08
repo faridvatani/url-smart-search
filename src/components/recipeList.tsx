@@ -1,14 +1,21 @@
-import Link from "next/link";
-import results from "@/data/recipes.json";
+import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
 export default async function RecipeList({ query }: { query: string }) {
-  // TODO: Filter recipes based on the query
+  const results = await prisma.recipe.findMany({
+    where: {
+      title: {
+        contains: query,
+        mode: "insensitive",
+      },
+    },
+  });
+  console.log(results);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {results.map((recipe) => (
-        <Link
-          href={`/recipes/${recipe.title}`}
-          key={recipe.title + recipe.description}
+      {results.map((recipe: Prisma.RecipeCreateInput, index: number) => (
+        <article
+          key={index}
           className="bg-white border-2 border-gray-400 rounded-xl overflow-hidden transition-all duration-300 transform flex flex-col hover:scale-105 shadow-lg hover:shadow-xl hover:shadow-indigo-200 hover:border-indigo-500"
         >
           <div className="p-5 border-b border-gray-100">
@@ -20,7 +27,7 @@ export default async function RecipeList({ query }: { query: string }) {
               {recipe.description}
             </p>
           </div>
-        </Link>
+        </article>
       ))}
     </div>
   );
