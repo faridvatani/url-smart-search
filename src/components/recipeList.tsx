@@ -1,34 +1,44 @@
+"use server";
 import { prisma } from "@/lib/db";
+import { getEmbeddings } from "@/lib/embeddings";
 import { Prisma } from "@prisma/client";
 
 export default async function RecipeList({ query }: { query: string }) {
+  let queryEmbedding: number[] | null = null;
+
+  if (query && query.trim() !== "") {
+    queryEmbedding = await getEmbeddings(query);
+  }
+
   // Build the pipeline dynamically
   const pipeline = [];
 
-  if (query && query.trim() !== "") {
+  if (queryEmbedding) {
     pipeline.push({
-      $search: {
-        index: "default",
-        text: {
-          query,
-          path: ["title", "description"],
-          fuzzy: {
-            maxEdits: 2, // allows up to 2 typos
-            prefixLength: 1, // first char must catch exactly
-          },
-        },
+      $vectorSearch: {
+        index: "vector_index",
+        path: "embeddings",
+        queryVector: queryEmbedding,
+        numCandidates: 50, // Retrieve more candidates for better accuracy
+        limit: 6, // Final limit for results
       },
     });
   }
 
   pipeline.push(
-    { $limit: 16 },
+    {
+      $sort: {
+        score: -1, // Sort by relevance (higher score first)
+      },
+    },
+    {
+      $limit: 16, // Limit the number of results
+    },
     {
       $project: {
-        _id: 1,
         title: 1,
         description: 1,
-        score: { $meta: "searchScore" },
+        score: { $meta: "vectorSearchScore" },
       },
     },
   );
