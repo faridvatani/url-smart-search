@@ -5,22 +5,27 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import AutoCompleteBox from "./AutoCompleteBox";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 export default function SearchBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState<string>(initialQuery);
+
+  const [inputValue, setInputValue] = useState<string>(initialQuery);
   const [suggestions, setSuggestions] = useState<
     Array<{ id: string; title: string }>
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>(initialQuery);
   const formRef = useRef<HTMLFormElement>(null);
-  const debouncedSearchTerm = useDebounce(query, 300);
+  const debouncedSearchTerm = useDebounce(inputValue, 300);
 
+  // Close suggestions when clicking outside the form
+  useClickOutside(formRef, () => setShowSuggestions(false));
+
+  // Update the query parameter in the URL
   const updateSearchParam = (q: string) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
@@ -32,17 +37,22 @@ export default function SearchBar() {
     });
   };
 
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSearchParam(query);
+    updateSearchParam(inputValue);
+    setShowSuggestions(false);
   };
 
+  // Reset the search input and suggestions
   const resetSearch = () => {
-    setQuery("");
+    setInputValue("");
+    setSuggestions([]);
+    setShowSuggestions(false);
     router.replace(pathname, { scroll: false });
   };
 
-  // Fetch autocomplete suggestions when debounced input value changes
+  // Fetch autocomplete suggestions when the debounced input value changes
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (debouncedSearchTerm.length < 2) {
@@ -69,65 +79,37 @@ export default function SearchBar() {
     fetchSuggestions();
   }, [debouncedSearchTerm]);
 
-  const submitSearch = (searchValue: string) => {
-    const params = new URLSearchParams();
-    if (searchValue) {
-      params.set("q", searchValue);
-    } else {
-      params.delete("q");
-    }
-
-    setShowSuggestions(false);
-    router.replace(
-      pathname + (params.toString() ? `?${params.toString()}` : ""),
-      { scroll: false },
-    );
-  };
-
+  // Handle selecting a suggestion
   const handleSelectSuggestion = (title: string) => {
     setInputValue(title);
-    submitSearch(title);
+    updateSearchParam(title);
+    setShowSuggestions(false);
   };
 
+  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
     setShowSuggestions(true);
   };
 
+  // Handle input focus
   const handleInputFocus = () => {
     if (inputValue.length >= 2) {
       setShowSuggestions(true);
     }
   };
 
-  // Click outside to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (formRef.current && !formRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <form
       onSubmit={handleSubmit}
       role="search"
-      className="relative mb-16 w-full max-w-xl mx-auto "
+      className="relative mb-16 w-full max-w-xl mx-auto"
+      ref={formRef}
     >
-      <div
-        className="relative flex items-center gap-2 rounded-xl focus-within:rounded-b-none bg-white border-2 border-black/40 focus-within:border-indigo-500  focus-within:ring-indigo-500 transition-all duration-300 ${
-          "
-      >
+      <div className="relative flex items-center gap-2 rounded-xl focus-within:rounded-b-none bg-white border-2 border-black/40 focus-within:border-indigo-500 focus-within:ring-indigo-500 transition-all duration-300 shadow-lg">
         <input
           type="text"
           name="search"
-          // value={query}
           value={inputValue}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
@@ -135,7 +117,7 @@ export default function SearchBar() {
           aria-label="Search recipes"
           className="flex-1 px-3 py-5 border-none focus:outline-none focus:ring-0 text-lg text-gray-700 placeholder:text-zinc-400"
         />
-        {query && (
+        {inputValue && (
           <button
             type="button"
             onClick={resetSearch}
