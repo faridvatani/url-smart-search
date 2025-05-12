@@ -106,7 +106,13 @@ export default function SearchBar() {
       className="relative mb-16 w-full max-w-xl mx-auto"
       ref={formRef}
     >
-      <div className="relative flex items-center gap-2 rounded-xl focus-within:rounded-b-none bg-white border-2 border-black/40 focus-within:border-indigo-500 focus-within:ring-indigo-500 transition-all duration-300 shadow-lg">
+      <div
+        className={`relative flex items-center gap-2 bg-white border-2 border-black/40 transition-all duration-300 shadow-lg ${
+          showSuggestions
+            ? "rounded-t-xl focus-within:rounded-t-xl focus-within:rounded-b-none"
+            : "rounded-xl focus-within:rounded-xl"
+        } focus-within:border-indigo-500 focus-within:ring-indigo-500`}
+      >
         <input
           type="text"
           name="search"
