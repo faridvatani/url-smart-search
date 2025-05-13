@@ -143,7 +143,7 @@ Built with ❤️ by [Farid Vatani](https://github.com/faridvatani).
 
 ## 🧠 Wiki
 
-Check out the [Wiki](WIKI.md) for detailed explanations of the implementation, including how to set up MongoDB Atlas, Prisma, and OpenAI API keys.
+Check out the [Wiki](Wiki.md) for detailed explanations of the implementation, including how to set up MongoDB Atlas, Prisma, and OpenAI API keys.
 
 ## 📎 Learn More
 
