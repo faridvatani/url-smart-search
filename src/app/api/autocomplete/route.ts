@@ -17,6 +17,10 @@ export async function GET(request: NextRequest) {
             autocomplete: {
               query,
               path: "title",
+              fuzzy: {
+                maxEdits: 2, // allows up to 2 typos
+                prefixLength: 1, // first char must catch exactly
+              },
             },
           },
         },
