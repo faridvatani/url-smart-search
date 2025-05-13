@@ -92,6 +92,7 @@ src/
 - Create a `.env` file in the root directory and add your MongoDB connection string and OpenAI API key:
 
   ```bash
+  NODE_ENV=development #development or production
   DATABASE_URL="mongodb+srv://<username>:<password>@cluster.mongodb.net/mydatabase?retryWrites=true&w=majority"
   OPENAI_API_KEY="your-openai-api-key"
   ```
